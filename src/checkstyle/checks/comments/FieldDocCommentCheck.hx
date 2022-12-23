@@ -55,6 +55,11 @@ class FieldDocCommentCheck extends Check {
 	**/
 	public var excludeNames:Array<String>;
 
+	/**
+		allows field comments that are a single line comment.
+	**/
+	public var allowSingleLineComments:Bool;
+
 	public function new() {
 		super(TOKEN);
 		tokens = [ABSTRACT_DEF, CLASS_DEF, ENUM_DEF, INTERFACE_DEF, TYPEDEF_DEF];
@@ -64,6 +69,7 @@ class FieldDocCommentCheck extends Check {
 		requireReturn = true;
 		excludeNames = ["new", "toString"];
 		ignoreOverride = true;
+		allowSingleLineComments = false;
 	}
 
 	function hasToken(token:TypeDocCommentToken):Bool {
@@ -197,12 +203,14 @@ class FieldDocCommentCheck extends Check {
 			return;
 		}
 		var lines:Array<String> = text.split(checker.lineSeparator);
-		if (lines.length < 3) {
-			logPos('Documentation for field "$name" should have at least one extra line of text', docToken.pos);
-			return;
+		if (!allowSingleLineComments) {
+			if (lines.length < 3) {
+				logPos('Documentation for field "$name" should have at least one extra line of text', docToken.pos);
+				return;
+			}
+			var firstLine:String = StringTools.trim(lines[1]);
+			if ((firstLine == "") || (firstLine == "*")) logPos('Documentation for field "$name" should have at least one extra line of text', docToken.pos);
 		}
-		var firstLine:String = StringTools.trim(lines[1]);
-		if ((firstLine == "") || (firstLine == "*")) logPos('Documentation for field "$name" should have at least one extra line of text', docToken.pos);
 
 		switch (token.tok) {
 			case Kwd(KwdFunction):

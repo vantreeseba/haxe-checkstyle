@@ -16,6 +16,11 @@ class TypeDocCommentCheck extends Check {
 	**/
 	public var tokens:Array<TypeDocCommentToken>;
 
+	/**
+		allows field comments that are a single line comment.
+	**/
+	public var allowSingleLineComments:Bool;
+
 	public function new() {
 		super(TOKEN);
 		tokens = [ABSTRACT_DEF, CLASS_DEF, ENUM_DEF, INTERFACE_DEF, TYPEDEF_DEF];
@@ -106,13 +111,15 @@ class TypeDocCommentCheck extends Check {
 			logPos('Documentation for type "$name" should contain text', token.pos);
 			return;
 		}
-		var lines:Array<String> = text.split(checker.lineSeparator);
-		if (lines.length < 3) {
-			logPos('Documentation for type "$name" should have at least one extra line of text', token.pos);
-			return;
+		if (!allowSingleLineComments) {
+			var lines:Array<String> = text.split(checker.lineSeparator);
+			if (lines.length < 3) {
+				logPos('Documentation for type "$name" should have at least one extra line of text', token.pos);
+				return;
+			}
+			var firstLine:String = StringTools.trim(lines[1]);
+			if ((firstLine == "") || (firstLine == "*")) logPos('Documentation for type "$name" should have at least one extra line of text', token.pos);
 		}
-		var firstLine:String = StringTools.trim(lines[1]);
-		if ((firstLine == "") || (firstLine == "*")) logPos('Documentation for type "$name" should have at least one extra line of text', token.pos);
 	}
 
 	override public function detectableInstances():DetectableInstances {

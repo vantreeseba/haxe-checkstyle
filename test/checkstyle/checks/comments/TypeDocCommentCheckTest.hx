@@ -45,7 +45,7 @@ class TypeDocCommentCheckTest extends CheckTestCase<TypeDocCommentCheckTests> {
 	}
 
 	@Test
-	public function testImterface() {
+	public function testInterface() {
 		var check = new TypeDocCommentCheck();
 		check.tokens = [INTERFACE_DEF];
 		checkComments(check, "ITest");
@@ -56,6 +56,20 @@ class TypeDocCommentCheckTest extends CheckTestCase<TypeDocCommentCheckTests> {
 		var check = new TypeDocCommentCheck();
 		check.tokens = [TYPEDEF_DEF];
 		checkComments(check, "TTest");
+	}
+
+	@Test
+	public function testClassWithSingleLineAllowed() {
+		var check = new TypeDocCommentCheck();
+		check.tokens = [CLASS_DEF];
+		check.allowSingleLineComments = true;
+		var name = "CTest";
+
+		assertNoMsg(check, ALL_TYPES_COMMENTED);
+//         assertMsg(check, EMPTY_COMMENTS, 'Documentation for type "$name" should have at least one extra line of text');
+//         assertMsg(check, EMPTY_COMMENTS_2, 'Documentation for type "$name" should have at least one extra line of text');
+		assertMsg(check, EMPTY_COMMENTS_3, 'Documentation for type "$name" should contain text');
+		assertMsg(check, NO_COMMENTS, 'Type "$name" should have documentation');
 	}
 
 	function checkComments(check:TypeDocCommentCheck, name:String, ?pos:PosInfos) {
